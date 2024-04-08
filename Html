@@ -1,65 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gods Blessing</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        nav {
-            background-color: #444;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-        }
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        section {
-            padding: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Gods Blessing</h1>
-    </header>
-    <nav>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-    </nav>
-    <section id="about">
-        <h2>About</h2>
-        <p>Welcome to Gods Blessing, a place to find peace and inspiration.</p>
-    </section>
-    <section id="contact">
-        <h2>Contact</h2>
-        <p>You can reach out to us at: gods.blessing@example.com</p>
-    </section>
-    <footer>
-        &copy; 2024 Gods Blessing
-    </footer>
-</body>
-</html>
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set screen dimensions
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Set colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+
+# Set player attributes
+player_width = 50
+player_height = 50
+player_speed = 8
+
+# Set obstacle attributes
+obstacle_width = 50
+obstacle_height = 50
+obstacle_speed = 5
+
+# Set font
+font = pygame.font.SysFont(None, 36)
+
+# Set up the screen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Football Runner")
+
+# Function to display text on screen
+def display_text(text, color, x, y):
+    text_surface = font.render(text, True, color)
+    screen.blit(text_surface, (x, y))
+
+# Function to display player
+def draw_player(x, y):
+    pygame.draw.rect(screen, BLACK, [x, y, player_width, player_height])
+
+# Function to display obstacle
+def draw_obstacle(x, y):
+    pygame.draw.rect(screen, GREEN, [x, y, obstacle_width, obstacle_height])
+
+# Function to check collision
+def check_collision(player_x, player_y, obstacle_x, obstacle_y):
+    if (player_x + player_width > obstacle_x and player_x < obstacle_x + obstacle_width and
+            player_y + player_height > obstacle_y and player_y < obstacle_y + obstacle_height):
+        return True
+    return False
+
+# Function to display score
+def display_score(score):
+    display_text("Score: " + str(score), BLACK, 10, 10)
+
+# Main game function
+def game():
+    player_x = SCREEN_WIDTH // 2 - player_width // 2
+    player_y = SCREEN_HEIGHT - player_height - 20
+    obstacle_x = random.randint(0, SCREEN_WIDTH - obstacle_width)
+    obstacle_y = -obstacle_height
+    score = 0
+
+    clock = pygame.time.Clock()
+    game_over = False
+
+    while not game_over:
+        screen.fill(WHITE)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player_x -= player_speed
+        if keys[pygame.K_RIGHT]:
+            player_x += player_speed
+
+        if player_x < 0:
+            player_x = 0
+        elif player_x > SCREEN_WIDTH - player_width:
+            player_x = SCREEN_WIDTH - player_width
+
+        draw_player(player_x, player_y)
+        draw_obstacle(obstacle_x, obstacle_y)
+        obstacle_y += obstacle_speed
+
+        if obstacle_y > SCREEN_HEIGHT:
+            obstacle_x = random.randint(0, SCREEN_WIDTH - obstacle_width)
+            obstacle_y = -obstacle_height
+            score += 1
+
+        if check_collision(player_x, player_y, obstacle_x, obstacle_y):
+            game_over = True
+
+        display_score(score)
+        pygame.display.update()
+        clock.tick(60)
+
+    screen.fill(WHITE)
+    display_text("Game Over", BLACK, SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 50)
+    display_text("Your score: " + str(score), BLACK, SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2)
+    pygame.display.update()
+    pygame.time.delay(2000)
+
+# Run the game
+game()
+
